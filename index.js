@@ -1,28 +1,57 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var http = require('http');
+
+var request = require('request');
+
+var schedule = require('node-schedule');
+var key = process.env.IFTTT_KEY;
+var j = schedule.scheduleJob('* * 03 * *', function(){
+  currentDailySpend = 0;
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // daily max in pence
-var dailyMaxSpend = 1600
+var dailyMaxSpend = 1600;
 
-app.post('/updateBalance', function (req, res){
-  console.log(req.body)
+// reset every midnight
+var currentDailySpend = 0;
 
-  var currentDailySpend = req.body.spend_today
-  if (currentDailySpend >= (dailyMaxSpend - (dailyMaxSpend/10))){
-    console.log(currentDailySpend + ' spent today, close to daily max')
-    res.send('close to daily max')
+app.post('/updateBalance', function (req, res, next){
+
+  var justSpent = parseInt(req.body.data.amount.replace('-', ''))
+
+  currentDailySpend += justSpent
+  var message = '';
+
+  if (currentDailySpend >= (dailyMaxSpend - (dailyMaxSpend/10)) && currentDailySpend <= dailyMaxSpend){
+    message = '!! Close to daily max, spent ' + currentDailySpend + '!!';
   }
-  else if (currentDailySpend >= dailyMaxSpend){
-    console.log(currentDailySpend + ' spent today, you hit daily max')
-    res.send('You hit daily max: ' + currentDailySpend)
+  else if (currentDailySpend >= dailyMaxSpend) {
+    message = '!! You hit daily max. Spent ' + currentDailySpend + ' today!!';
+  } 
+
+  if (message !== ''){
+    request.post(
+      'https://maker.ifttt.com/trigger/balance_update/with/key/' + key,
+      { json: { "value1": message }},
+      function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            console.log('body: ', body)
+            res.send(body)
+        }
+        else {
+          console.log(error)
+          res.send(error)
+        }
+      }
+    )
   }
   else {
-    console.log(currentDailySpend + ' spent today, you\'re all good')
-    res.send('You\'re fine, only spend ' + currentDailySpend + ' today :)')
+    res.send('Currently spent ' + currentDailySpend);
   }
 })
 
