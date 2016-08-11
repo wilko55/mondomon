@@ -45,7 +45,6 @@ var k = schedule.scheduleJob('0 17 * * 1', function(){
   remainderForWeek = 0;
 });
 
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // resets every week
@@ -57,9 +56,13 @@ var currentDailySpend = 0;
 var dailyMaxSpend = 1200;
 var percentageToWarn = 10;
 
+app.get('/', function(req, res){
+  res.send('working')
+})
 
 app.post('/updateBalance', function (req, res, next){
-  console.log('here, with req.body: ' + req.body)
+  console.log('here, with req.body: ')
+  console.log(req.body)
   if (!!req.body.data.amount){
     console.log('amount: ' + req.body.data.amount)
     var justSpent = parseInt(req.body.data.amount.replace('-', ''))
