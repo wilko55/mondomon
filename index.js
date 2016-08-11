@@ -59,6 +59,7 @@ var percentageToWarn = 10;
 
 
 app.post('/updateBalance', function (req, res, next){
+  console.log('here, with req.body: ' + req.body)
   if (!!req.body.data.amount){
     console.log('amount: ' + req.body.data.amount)
     var justSpent = parseInt(req.body.data.amount.replace('-', ''))
@@ -77,7 +78,7 @@ app.post('/updateBalance', function (req, res, next){
       message = '!! You hit your daily max. Spent ' + penceToPounds(currentDailySpend) + ' today!!';
     } 
 
-    console.log(message)
+    console.log('message:' + message)
     if (message !== ''){
       request.post(
         'https://maker.ifttt.com/trigger/balance_update/with/key/' + key,
