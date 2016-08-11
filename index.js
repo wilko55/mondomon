@@ -59,24 +59,25 @@ var percentageToWarn = 10;
 
 
 app.post('/updateBalance', function (req, res, next){
-
   if (!!req.body.data.amount){
+    console.log('amount: ' + req.body.data.amount)
     var justSpent = parseInt(req.body.data.amount.replace('-', ''))
 
     currentDailySpend += justSpent
     var message = '';
-
+    console.log('current spend: ' + currentDailySpend)
     if (currentDailySpend >= (dailyMaxSpend - (dailyMaxSpend/percentageToWarn)) && currentDailySpend <= dailyMaxSpend){
       message = '!! Close to daily max, spent ' + penceToPounds(currentDailySpend) + '!!';
     }
     else if (currentDailySpend >= 0 && currentDailySpend <= dailyMaxSpend) {
-      // console.log(currentDailySpend + ' spent today, you\'re all good')
+      console.log(currentDailySpend + ' spent today, you\'re all good')
       message = 'You\'re fine, only spent ' + penceToPounds(currentDailySpend) + ' today :)';
     }
     else if (currentDailySpend >= dailyMaxSpend) {
       message = '!! You hit your daily max. Spent ' + penceToPounds(currentDailySpend) + ' today!!';
     } 
 
+    console.log(message)
     if (message !== ''){
       request.post(
         'https://maker.ifttt.com/trigger/balance_update/with/key/' + key,
@@ -87,7 +88,7 @@ app.post('/updateBalance', function (req, res, next){
               res.send(body)
           }
           else {
-            console.log(error)
+            console.log('error: ' + error)
             res.send(error)
           }
         }
