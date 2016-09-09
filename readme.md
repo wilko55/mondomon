@@ -1,1 +1,1 @@
-readme.md
+A simple application to calulate daily and weekly spending blanaces for Mondo users.
