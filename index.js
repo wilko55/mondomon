@@ -6,11 +6,14 @@ var http = require('http');
 var request = require('request');
 
 var key = process.env.IFTTT_KEY;
-var scheduledTasks = require('./lib/scheduledTasks').tasks()
+var dailyMax = process.env.DAILY_MAX;
+var currentDailySpend = process.env.CURRENT_DAILY_SPEND
+
+var scheduledTasks = require('./lib/scheduledTasks').tasks(key, dailyMax)
 app.use(bodyParser.json());
 
-require('./lib/routes')(app, request, key);
+require('./lib/routes').routes(app, request, key, dailyMax, currentDailySpend);
 
 app.listen(5050, function(){
-  console.log('Kicked off on 5050')
+  console.log('Kicked off on 5050. Daily max: ' + dailyMax + ' and currentDailySpend: ' + currentDailySpend)
 })
